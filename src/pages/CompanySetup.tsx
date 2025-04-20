@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useCompany } from "@/context/CompanyContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import Layout from "@/components/layout/Layout";
+import { Role } from "@/types";
+import { nanoid } from "@/lib/utils";
 
 // Simple i18n utility
 const TRANSLATIONS = {
@@ -19,6 +20,7 @@ const TRANSLATIONS = {
     submitButton: "Analyze & Build My AI Team",
     descError: "Please provide a brief description of your startup.",
     suggestedRolesTitle: "Suggested AI Team Members (Based on your description)",
+    buildTeamButton: "Create My Team",
     retry: "Try Again",
   },
   ar: {
@@ -29,6 +31,7 @@ const TRANSLATIONS = {
     submitButton: "حلل وابن فريق الذكاء الاصطناعي الخاص بي",
     descError: "يرجى تقديم وصف موجز لشركتك.",
     suggestedRolesTitle: "أعضاء الفريق المقترحون (استنادًا إلى وصفك)",
+    buildTeamButton: "إنشاء فريقي",
     retry: "إعادة المحاولة",
   },
 };
@@ -44,13 +47,45 @@ function useLang(): LangType {
   return "en";
 }
 
+// Map role names to categories and icons
+const getCategoryAndIcon = (roleName: string): { category: string, icon: string } => {
+  const lowerRole = roleName.toLowerCase();
+  
+  if (lowerRole.includes('cto') || lowerRole.includes('tech') || lowerRole.includes('developer') || lowerRole.includes('engineer') || lowerRole.includes('architect')) {
+    return { category: 'tech', icon: 'code' };
+  }
+  
+  if (lowerRole.includes('cmo') || lowerRole.includes('market') || lowerRole.includes('sales') || lowerRole.includes('growth')) {
+    return { category: 'marketing', icon: 'brain' };
+  }
+  
+  if (lowerRole.includes('cfo') || lowerRole.includes('financ') || lowerRole.includes('account')) {
+    return { category: 'finance', icon: 'chart-bar' };
+  }
+  
+  if (lowerRole.includes('coo') || lowerRole.includes('operat') || lowerRole.includes('logistics')) {
+    return { category: 'operations', icon: 'settings' };
+  }
+  
+  if (lowerRole.includes('hr') || lowerRole.includes('people') || lowerRole.includes('talent')) {
+    return { category: 'hr', icon: 'users' };
+  }
+  
+  if (lowerRole.includes('ceo') || lowerRole.includes('lead') || lowerRole.includes('founder') || lowerRole.includes('director')) {
+    return { category: 'leadership', icon: 'trophy' };
+  }
+  
+  // Default
+  return { category: 'tech', icon: 'layout-grid' };
+};
+
 const CompanySetup = () => {
   const [desc, setDesc] = useState("");
   const [descError, setDescError] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [suggestedRoles, setSuggestedRoles] = useState<string[]>([]);
   const navigate = useNavigate();
-  const { setCompany } = useCompany();
+  const { setCompany, setRoles } = useCompany();
   const lang = useLang();
   const t = TRANSLATIONS[lang];
 
@@ -126,9 +161,39 @@ const CompanySetup = () => {
     const roles = await analyzeDescription(desc, lang);
     setSuggestedRoles(roles || []);
     setIsAnalyzing(false);
+  };
 
-    // Optionally, could auto-advance to role selection or next steps here.
-    // Instead, we'll just show the suggested roles for now.
+  const handleCreateTeam = () => {
+    // Convert string roles to Role objects
+    const teamRoles: Role[] = suggestedRoles.map(role => {
+      const { category, icon } = getCategoryAndIcon(role);
+      return {
+        id: nanoid(),
+        title: role,
+        description: `AI assistant specialized in ${role} responsibilities`,
+        category: category as any,
+        responsibilities: [
+          `Provide expertise in ${role} areas`,
+          `Assist with strategy and execution`,
+          `Answer questions related to ${role} responsibilities`,
+          `Help optimize ${role} operations`
+        ],
+        icon: icon
+      };
+    });
+
+    // Save the company and roles to context
+    setCompany({
+      name: "AI Startup Team",
+      type: "tech_startup",
+      description: desc
+    });
+    
+    // Set the roles directly in the context
+    setRoles(teamRoles);
+    
+    // Navigate to the team dashboard
+    navigate("/team");
   };
 
   return (
@@ -174,9 +239,16 @@ const CompanySetup = () => {
                 <li key={role}>{role}</li>
               ))}
             </ul>
-            <div className="flex justify-end mt-6">
-              <Button variant="ghost" size="sm" onClick={()=>setSuggestedRoles([])}>
+            <div className="flex justify-between mt-6">
+              <Button variant="outline" size="sm" onClick={()=>setSuggestedRoles([])}>
                 {t.retry}
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleCreateTeam}
+              >
+                {t.buildTeamButton}
               </Button>
             </div>
           </div>

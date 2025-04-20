@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/layout/Layout";
+import AddTeamMember from "@/components/AddTeamMember";
 import { Brain, Users, ChartBar, Settings, Trophy, Layout as LayoutIcon, Code } from "lucide-react";
 
 const TeamDashboard = () => {
@@ -77,7 +78,7 @@ const TeamDashboard = () => {
             Your AI Team
           </h1>
           <p className="mt-3 text-lg text-muted-foreground">
-            Based on your {company?.type.replace("_", " ")} startup, here's the AI team we've assembled for you
+            Your team of AI assistants to help manage your business
           </p>
         </div>
 
@@ -97,42 +98,48 @@ const TeamDashboard = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {roles.map((role) => (
-              <div
-                key={role.id}
-                className={getRoleCardClass(role.category)}
-              >
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-background border">
-                      {getRoleIcon(role.icon)}
+          <>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {roles.map((role) => (
+                <div
+                  key={role.id}
+                  className={getRoleCardClass(role.category)}
+                >
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-background border">
+                        {getRoleIcon(role.icon)}
+                      </div>
+                      <h3 className="font-semibold">{role.title}</h3>
                     </div>
-                    <h3 className="font-semibold">{role.title}</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {role.description}
-                  </p>
-                  <ul className="text-sm space-y-1 mb-4">
-                    {role.responsibilities.slice(0, 2).map((resp, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                        <span>{resp}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-auto pt-2">
-                    <Button 
-                      className="w-full" 
-                      onClick={() => handleRoleSelect(role)}
-                    >
-                      Consult with {role.title.split('&')[0].trim()}
-                    </Button>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {role.description}
+                    </p>
+                    <ul className="text-sm space-y-1 mb-4">
+                      {role.responsibilities.slice(0, 2).map((resp, idx) => (
+                        <li key={idx} className="flex items-center gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                          <span>{resp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-auto pt-2">
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handleRoleSelect(role)}
+                      >
+                        Consult with {role.title.split('&')[0].trim()}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+            
+            <div className="mt-10 max-w-md mx-auto">
+              <AddTeamMember />
+            </div>
+          </>
         )}
       </div>
     </Layout>

@@ -9,7 +9,9 @@ interface CompanyContextType {
   isLoading: boolean;
   setCompany: (company: Company) => void;
   generateRoles: () => void;
+  addCustomRole: (role: Role) => void;
   clearCompany: () => void;
+  setRoles: (roles: Role[]) => void;
 }
 
 const defaultContext: CompanyContextType = {
@@ -18,7 +20,9 @@ const defaultContext: CompanyContextType = {
   isLoading: false,
   setCompany: () => {},
   generateRoles: () => {},
+  addCustomRole: () => {},
   clearCompany: () => {},
+  setRoles: () => {},
 };
 
 const CompanyContext = createContext<CompanyContextType>(defaultContext);
@@ -54,6 +58,10 @@ export const CompanyProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  const addCustomRole = (newRole: Role) => {
+    setRoles(prevRoles => [...prevRoles, newRole]);
+  };
+
   return (
     <CompanyContext.Provider
       value={{
@@ -62,7 +70,9 @@ export const CompanyProvider: React.FC<{ children: ReactNode }> = ({ children })
         isLoading,
         setCompany,
         generateRoles,
+        addCustomRole,
         clearCompany,
+        setRoles,
       }}
     >
       {children}
