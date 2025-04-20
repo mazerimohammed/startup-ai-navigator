@@ -16,7 +16,7 @@ const RoleConsultation = () => {
   const { roles } = useCompany();
   const [role, setRole] = useState<Role | null>(null);
   const [query, setQuery] = useState("");
-  const [responses, setResponses] = useState<string[]>([]);
+  const [responses, setResponses] = useState<{text: string, time: Date}[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -62,7 +62,7 @@ const RoleConsultation = () => {
     setIsLoading(true);
     try {
       const response = await generateAIResponse(role, query);
-      setResponses([...responses, response]);
+      setResponses([...responses, {text: response, time: new Date()}]);
       setQuery("");
     } catch (error) {
       console.error("Error generating AI response:", error);
@@ -71,49 +71,76 @@ const RoleConsultation = () => {
     }
   };
 
+  // Function to render responses with proper formatting
+  const renderResponseContent = (content: string) => {
+    // Check if the content contains code blocks
+    if (content.includes("```")) {
+      const parts = content.split(/```(?:[\w]*\n)?/);
+      return (
+        <>
+          {parts.map((part, index) => {
+            // Even indices are normal text, odd indices are code blocks
+            if (index % 2 === 0) {
+              return <p key={index} className="mb-2 whitespace-pre-line">{part}</p>;
+            } else {
+              return (
+                <pre key={index} className="bg-gray-100 p-3 rounded-md my-2 overflow-x-auto rtl:text-left direction-ltr">
+                  <code>{part}</code>
+                </pre>
+              );
+            }
+          })}
+        </>
+      );
+    }
+    
+    // If no code blocks, render with line breaks preserved
+    return <p className="whitespace-pre-line">{content}</p>;
+  };
+
   const getExampleQueries = (category: string): string[] => {
     switch (category) {
       case "tech":
         return [
-          "What tech stack should we use for our MVP?",
-          "How should we approach scaling our architecture?",
-          "What's the best way to structure our development team?"
+          "ما هي التقنيات المناسبة لمشروعي؟",
+          "اكتب لي كود لتطبيق ويب بسيط",
+          "اقترح هيكلة لقاعدة البيانات المناسبة"
         ];
       case "marketing":
         return [
-          "What marketing channels should we focus on first?",
-          "How can we optimize our customer acquisition cost?",
-          "What content strategy would work best for our industry?"
+          "اقترح استراتيجية تسويق لشركة ناشئة",
+          "كيف يمكنني الوصول للعملاء المستهدفين؟", 
+          "ما هي قنوات التسويق الأكثر فعالية؟"
         ];
       case "finance":
         return [
-          "How should we price our product?",
-          "What financial metrics should we be tracking?",
-          "How much runway should we aim for before seeking funding?"
+          "قدم لي دراسة جدوى مبسطة للمشروع",
+          "ما هي التكاليف المتوقعة للسنة الأولى؟",
+          "كيف يمكنني تخطيط ميزانية الشركة الناشئة؟"
         ];
       case "operations":
         return [
-          "How can we optimize our operational efficiency?",
-          "What project management methodology should we use?",
-          "How should we structure our customer support process?"
+          "كيف يمكنني تنظيم العمليات في الشركة؟",
+          "اقترح هيكلية إدارية للفريق",
+          "ما هي أفضل الممارسات لإدارة المشاريع؟"
         ];
       case "hr":
         return [
-          "How should we structure our hiring process?",
-          "What's the best compensation strategy for early employees?",
-          "How can we build a strong company culture remotely?"
+          "كيف أبني فريق عمل متكامل للشركة الناشئة؟",
+          "اقترح سياسة توظيف وأجور للموظفين",
+          "كيف أبني ثقافة شركة إيجابية؟"
         ];
       case "leadership":
         return [
-          "What should be our top priorities in the first year?",
-          "How should we approach fundraising?",
-          "What leadership style works best for early-stage startups?"
+          "ما هي أولويات الشركة في السنة الأولى؟",
+          "كيف يمكنني تطوير مهاراتي القيادية؟",
+          "ما هي استراتيجيات النمو المناسبة؟"
         ];
       default:
         return [
-          "What should our priorities be?",
-          "How can we improve our processes?",
-          "What strategies should we consider?"
+          "ما هي أولوياتنا الحالية؟",
+          "كيف يمكننا تحسين العمليات؟",
+          "ما هي الاستراتيجيات المناسبة لنا؟"
         ];
     }
   };
@@ -127,7 +154,7 @@ const RoleConsultation = () => {
           onClick={() => navigate("/team")}
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Team
+          العودة للفريق
         </Button>
 
         {role ? (
@@ -152,17 +179,17 @@ const RoleConsultation = () => {
               {responses.length === 0 ? (
                 <div className="rounded-lg border p-6">
                   <h2 className="font-semibold mb-3">
-                    Ask your {role.title.split('&')[0].trim()} anything
+                    اسأل {role.title.split('&')[0].trim()} أي سؤال
                   </h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Get strategic advice and insights based on industry best practices
+                    احصل على نصائح واستشارات متخصصة بناءً على أفضل الممارسات في المجال
                   </p>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     {getExampleQueries(role.category).map((example, index) => (
                       <Button
                         key={index}
                         variant="outline"
-                        className="justify-start h-auto py-3 px-4 text-left"
+                        className="justify-start h-auto py-3 px-4 text-right"
                         onClick={() => setQuery(example)}
                       >
                         {example}
@@ -174,7 +201,14 @@ const RoleConsultation = () => {
                 <div className="space-y-4">
                   {responses.map((response, index) => (
                     <Card key={index} className="p-4 shadow-sm">
-                      <p>{response}</p>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{new Date(response.time).toLocaleTimeString()}</span>
+                        </div>
+                      </div>
+                      <div className="prose prose-sm max-w-none">
+                        {renderResponseContent(response.text)}
+                      </div>
                     </Card>
                   ))}
                 </div>
@@ -182,23 +216,24 @@ const RoleConsultation = () => {
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <Textarea
-                  placeholder={`Ask your ${role.title.split('&')[0].trim()} a question...`}
+                  placeholder={`اسأل ${role.title.split('&')[0].trim()} سؤالاً...`}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   rows={3}
                   className="resize-none"
+                  dir="rtl"
                 />
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isLoading || !query.trim()}>
                     {isLoading ? (
                       <div className="flex items-center gap-2">
                         <Skeleton className="h-4 w-4 rounded-full animate-pulse" />
-                        Thinking...
+                        جاري التفكير...
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <Send className="h-4 w-4" />
-                        Send
+                        إرسال
                       </div>
                     )}
                   </Button>

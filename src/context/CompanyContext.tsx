@@ -48,7 +48,7 @@ export const CompanyProvider: React.FC<{ children: ReactNode }> = ({ children })
     
     setIsLoading(true);
     try {
-      // In a real app, this would be an API call to an AI service
+      // استدعاء دالة توليد الأدوار المتخصصة
       const generatedRoles = await generateTeamRoles(company.type);
       setRoles(generatedRoles);
     } catch (error) {

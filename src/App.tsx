@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import CompanySetup from "./pages/CompanySetup";
 import TeamDashboard from "./pages/TeamDashboard";
 import RoleConsultation from "./pages/RoleConsultation";
 import NotFound from "./pages/NotFound";
+import "./lib/utils.css"; // إضافة ملف CSS الجديد
 
 const queryClient = new QueryClient();
 
