@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 216 90% 45%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -35,19 +35,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -61,7 +54,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 210 100% 65%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -97,5 +90,43 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .ai-gradient-text {
+    @apply bg-gradient-to-r from-ai-blue via-ai-purple to-ai-pink bg-clip-text text-transparent;
+  }
+  
+  .ai-card {
+    @apply rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md;
+  }
+
+  .ai-role-card {
+    @apply rounded-xl border-2 p-5 transition-all hover:shadow-md;
+  }
+  
+  .ai-role-card-tech {
+    @apply border-ai-blue;
+  }
+  
+  .ai-role-card-marketing {
+    @apply border-ai-purple;
+  }
+  
+  .ai-role-card-finance {
+    @apply border-ai-teal;
+  }
+  
+  .ai-role-card-operations {
+    @apply border-ai-amber;
+  }
+  
+  .ai-role-card-hr {
+    @apply border-ai-green;
+  }
+  
+  .ai-role-card-leadership {
+    @apply border-ai-pink;
   }
 }
